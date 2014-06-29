@@ -320,10 +320,10 @@ class Plugin(XBMCMixin):
     def redirect(self, url):
         '''Used when you need to redirect to another view, and you only
         have the final plugin:// url.'''
-        # TODO: Should we be overriding self.request with the new request?
-        new_request = self._parse_request(url=url, handle=self.request.handle)
-        log.debug('Redirecting %s to %s', self.request.path, new_request.path)
-        return self._dispatch(new_request.path)
+        original_request = self.request
+        self._request = self._parse_request(url=url, handle=original_request.handle)
+        log.debug('Redirecting %s to %s', original_request.path, self.request.path)
+        return self._dispatch(self.request.path)
 
     def run(self, test=False):
         '''The main entry point for a plugin.'''
