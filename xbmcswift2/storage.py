@@ -105,12 +105,12 @@ class _PersistentDictMixin(object):
 class _Storage(collections.MutableMapping, _PersistentDictMixin):
     '''Storage that acts like a dict but also can persist to disk.
 
-    :param filename: An absolute filepath to reprsent the storage on disk. The
+    :param filename: An absolute filepath to represent the storage on disk. The
                      storage will loaded from this file if it already exists,
                      otherwise the file will be created.
     :param file_format: 'pickle', 'json' or 'csv'. pickle is the default. Be
                         aware that json and csv have limited support for python
-                        objets.
+                        objects.
 
     .. warning:: Currently there are no limitations on the size of the storage.
                  Please be sure to call :meth:`~xbmcswift2._Storage.clear`
@@ -135,13 +135,29 @@ class _Storage(collections.MutableMapping, _PersistentDictMixin):
         return iter(self._items)
 
     def __len__(self):
-        return self._items.__len__
+        return self._items.__len__()
+
+    def viewkeys(self):
+        return self._items.viewkeys()
+    
+    def viewitems(self):
+        return dict(self).viewitems()
+    
+    def viewvalues(self):
+        return dict(self).viewvalues()
+    
+    # without defining this, cmp() still works, but it looks like all _Storage() 
+    # objects are equal 
+    # I don't compare the underlying dicts because of the timestamps
+    def __cmp__(self, other):
+        return cmp(dict(self), dict(other))
 
     def raw_dict(self):
         '''Returns the wrapped dict'''
         return self._items
 
     initial_update = collections.MutableMapping.update
+    has_key        = collections.MutableMapping.__contains__
 
     def clear(self):
         super(_Storage, self).clear()
