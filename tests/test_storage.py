@@ -114,3 +114,23 @@ class Test_Storage(TestCase):
         storage.clear()
         with open(filename) as inp:
             self.assertEqual(inp.read(), '{}')
+            
+    def test_dict_compatibility(self):
+        """Test that the _Storage class fully implements dict()"""
+        filename = '/tmp/testdict1.json'
+        storage1 = _Storage(filename, file_format='json')
+        storage2 = _Storage(filename.replace('1','2'), file_format='json')
+        storage1['key'] = 'abc'
+        self.assertEqual(storage1, storage1, '%s is equal to itself' % dict(storage1))
+        self.assertNotEqual(storage1, storage2, '%s & %s are not equal' % (dict(storage1), dict(storage2)))
+        self.assertGreater(storage1, storage2, '%s > %s' % (dict(storage1), dict(storage2)))
+        self.assertLess(storage2, storage1, '%s < %s' % (dict(storage1), dict(storage2)))
+        self.assertEqual(len(storage1),1)
+        self.assertEqual(len(storage2),0)
+        self.assertTrue(bool(storage1), 'non-empty objects test True')
+        self.assertFalse(bool(storage2), 'empty objects test False')
+        self.assertTrue(storage1.has_key('key'))
+        self.assertFalse(storage1.has_key('non-key'))
+
+        
+        
