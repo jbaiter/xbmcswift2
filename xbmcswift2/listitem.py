@@ -40,6 +40,7 @@ class ListItem(object):
         self._thumbnail = thumbnail
         self._context_menu_items = []
         self.is_folder = True
+        self.is_playable = False
         self._played = False
 
     def __repr__(self):
@@ -147,17 +148,18 @@ class ListItem(object):
 
     def get_is_playable(self):
         '''Returns True if the listitem is playable, False if it is a
-        directory
+        directory or a script
         '''
-        return not self.is_folder
+        return self.is_playable
 
     def set_is_playable(self, is_playable):
         '''Sets the listitem's playable flag'''
         value = 'false'
         if is_playable:
             value = 'true'
+            self.is_folder = False
+        self.is_playable = is_playable
         self.set_property('isPlayable', value)
-        self.is_folder = not is_playable
 
     playable = property(get_is_playable, set_is_playable)
 
@@ -186,7 +188,8 @@ class ListItem(object):
     def from_dict(cls, label=None, label2=None, icon=None, thumbnail=None,
                   path=None, selected=None, info=None, properties=None,
                   context_menu=None, replace_context_menu=False,
-                  is_playable=None, info_type='video', stream_info=None):
+                  is_playable=None, info_type='video', stream_info=None,
+                  is_folder=None):
         '''A ListItem constructor for setting a lot of properties not
         available in the regular __init__ method. Useful to collect all
         the properties in a dict and then use the **dct to call this
@@ -202,6 +205,8 @@ class ListItem(object):
 
         if is_playable:
             listitem.set_is_playable(True)
+        elif is_folder is not None:
+            listitem.is_folder = is_folder
 
         if properties:
             # Need to support existing tuples, but prefer to have a dict for
